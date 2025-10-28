@@ -3,13 +3,21 @@ import axios from "axios";
 import PendingUserApproval from "./pendingReqs"
 import styles from "../../../styles/manager/mum.module.css";
 import DeleteUserRequests from "./DelReq";
+import validator from "validator"
+
 
 const API_HOST = "http://localhost:3000/api";
 
 const ManagerUserManagement = () => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(false);
+
   const [error, setError] = useState("");
+
+  const [addError, setAddError] = useState("");
+  const [editError, setEditError] = useState("");
+  const [deleteError, setDeleteError] = useState("");
+
   const [search, setSearch] = useState("");
   const [sortBy, setSortBy] = useState("createdAt");
   const [order, setOrder] = useState("desc");
@@ -89,11 +97,83 @@ const ManagerUserManagement = () => {
     fetchUsers();
   }, [search, sortBy, order, page, limit]);
 
+
+   const validateSelectedUser = (user) => {
+    const errors = {};
+  
+    // Name
+    if (!user.name || validator.isEmpty(user.name.trim())) {
+      setAddError("Name is required");
+      setEditError("Name is required");
+      return true;
+    }
+  
+    // Email
+    if (!validator.isEmail(user.email || "")) {
+      setAddError("Invalid email address");
+      setEditError("Invalid email address");
+      return true;
+    }
+  
+    // Phone (must be 10 digits)
+    if (!validator.isNumeric(user.phone || "") || user.phone.length !== 10) {
+      setAddError("Phone must be a valid 10-digit number");
+      setEditError("Phone must be a valid 10-digit number");
+      return true;
+    }
+  
+    // Gender
+    if (!user.Gender || !["Male", "Female"].includes(user.Gender)) {
+  
+      setAddError("Gender is required");
+      setEditError("Gender is required");
+      return true;
+    }
+  
+    // Unique ID
+    if (!user.uniqueIdCard || validator.isEmpty(user.uniqueIdCard.trim())) {
+      setAddError("Unique ID is required");
+      setEditError("Unique ID is required");
+      return true;
+    }
+  
+    // Membership
+    // if (!user.membership?.type) {
+    //      setAddError("Membership type is required");
+    //   setEditError("Membership type is required");
+    //   return true;
+    // }
+  
+    // if (!user.membership?.status) {
+    //      setAddError("Membership status is required");
+    //   setEditError("Membership status is required");
+    //   return true;
+    // }
+  
+    const startDate = user.membership?.validity?.startDate;
+    const endDate = user.membership?.validity?.endDate;
+  
+    if (user.membership && startDate && endDate && new Date(endDate) <= new Date(startDate)) {
+         setAddError("End date must be after start date");
+      setEditError("End date must be after start date");
+      return true;
+    }
+  
+    return false;
+  };
+
+
+
   // 📝 Update user
   const handleUpdate = async () => {
     try {
-      setLoading(true);
-      setError("");
+        setLoading(true);
+      setEditError("");
+      console.log(selectedUser);
+
+      if(validateSelectedUser(selectedUser)){
+        return;
+      }
 
       await axios.put(
         `${API_HOST}/auth/update-user/${selectedUser._id}`,
@@ -110,7 +190,7 @@ const ManagerUserManagement = () => {
       fetchUsers();
     } catch (err) {
       console.error(err);
-      setError(err.response?.data?.message || "Failed to update user.");
+      setEditError(err.response?.data?.message || "Failed to update user.");
     } finally {
       setLoading(false);
     }
@@ -120,7 +200,7 @@ const ManagerUserManagement = () => {
   const handleDeleteRequest = async () => {
     try {
       setLoading(true);
-      setError("");
+      setDeleteError("");
 
       await axios.post(
         `${API_HOST}/manager/delete-member-request`,
@@ -137,7 +217,9 @@ const ManagerUserManagement = () => {
       fetchUsers();
     } catch (err) {
       console.error(err);
-      setError(err.response?.data?.message || "Failed to request deletion.");
+      // setError(err.response?.data?.message || "Failed to request deletion.");
+      setDeleteError(err.response?.data?.message || "Failed to request deletion.");
+   
     } finally {
       setLoading(false);
     }
@@ -176,9 +258,16 @@ const ManagerUserManagement = () => {
 //   };
 
   const handleAddUser = async () => {
+     if(!newUser){
+      setAddError("All fields are required");
+    }
+    if(validateSelectedUser(newUser)){
+        return;
+      }
     try {
       setLoading(true);
-      setError("");
+      setAddError("");
+       
 
       await axios.post(`${API_HOST}/auth/add-user`, newUser, {
         headers: {
@@ -207,7 +296,7 @@ const ManagerUserManagement = () => {
       fetchUsers();
     } catch (err) {
       console.error(err);
-      setError(err.response?.data?.message || "Failed to add user.");
+      setAddError(err.response?.data?.message || "Failed to add user.");
     } finally {
       setLoading(false);
     }
@@ -265,7 +354,7 @@ const ManagerUserManagement = () => {
       // style={{ textAlign: "center" }}
       className={styles.empty}>
         Loading...</p>}
-      {error && <p id={styles.errormsg} style={{ color: "red", textAlign: "center",padding:"4px" }}>{error}</p>}
+      {/* {error && <p id={styles.errormsg} style={{ color: "red", textAlign: "center",padding:"4px" }}>{error}</p>} */}
 
       {/* User Cards */}
       <div className={styles.userGrid}>
@@ -343,6 +432,7 @@ const ManagerUserManagement = () => {
         <div className={styles.modal}>
           <div className={styles.modalContent}>
             <h3>Add User</h3>
+            {addError && <p style={{ color: "red" }}>{addError}</p>}
 
             <input
               type="text"
@@ -489,7 +579,12 @@ const ManagerUserManagement = () => {
               </button>
               <button
                 className={styles.cancelButton}
-                onClick={() => setModalMode(null)}
+                onClick={() => {setModalMode(null)
+
+setAddError("");
+                    setEditError("");
+                }
+                }
               >
                 Cancel
               </button>
@@ -560,6 +655,8 @@ const ManagerUserManagement = () => {
             {modalMode === "edit" && (
               <>
                 <h3>Edit User</h3>
+                {editError && <p style={{ color: "red" }}>{editError}</p>}
+
                 <input
                   type="text"
                   placeholder="Name"
@@ -697,7 +794,11 @@ const ManagerUserManagement = () => {
                   >
                     {loading ? "Updating..." : "Update"}
                   </button>
-                  <button className={styles.cancelButton} onClick={() => setSelectedUser(null)}>Cancel</button>
+                  <button className={styles.cancelButton} onClick={() => {setSelectedUser(null)
+
+setAddError("");
+setEditError("");
+                  }}>Cancel</button>
                 </div>
               </>
             )}
@@ -705,6 +806,8 @@ const ManagerUserManagement = () => {
             {modalMode === "delete" && (
               <>
                 <h3>Request deletion of {selectedUser.name}?</h3>
+                                            {deleteError && <p style={{ color: "red" }}>{deleteError}</p>}
+
                 <div>
                   <button
                     className={styles.deleteBtn}

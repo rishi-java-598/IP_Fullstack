@@ -143,48 +143,73 @@ const HamMenu = () => {
             </Link>
           </li>
 
-          {(user?.role === "admin"||user?.role === "manager") && (
+       {/* For Admin */}
+{user?.role === "admin" && (
+  <>
+    <li>
+      <Link to="/dashboard/am" onClick={toggleMenu}>
+        Attendance Management
+      </Link>
+    </li>
 
-             <li>
-                <Link to="/dashboard/am" onClick={toggleMenu}>
-                  Attendance Management
-                </Link>
-              </li>)}
+    <li>
+      <Link to="/dashboard/um" onClick={toggleMenu}>
+        User Management
+      </Link>
+    </li>
 
-          {(user?.role === "admin"||user?.role === "manager") && (
-                         <li>
-                <Link to="/dashboard/um" onClick={toggleMenu}>
-                  User Management
-                </Link>
-              </li>
+    <li>
+      <Link to="/dashboard/pua" onClick={toggleMenu}>
+        Pending Approvals
+      </Link>
+    </li>
 
-                      )}
+    <li>
+      <Link to="/dashboard/udr" onClick={toggleMenu}>
+        Delete Requests
+      </Link>
+    </li>
+  </>
+)}
 
-          {(user?.role === "admin"||user?.role === "manager") && (
-                        <li>
-                <Link to="/dashboard/pua" onClick={toggleMenu}>
-                  Pending Approvals
-                </Link>
-              </li>
-                      )}
+{/* For Manager */}
+{user?.role === "manager" && (
+  <>
+    <li>
+      <Link to="/manager/dashboard/am" onClick={toggleMenu}>
+        Attendance Management
+      </Link>
+    </li>
 
-          {(user?.role === "admin"||user?.role === "manager") && (
-                        
-              <li>
-                <Link to="/dashboard/udr" onClick={toggleMenu}>
-                  Delete Requests
-                </Link>
-              </li>
-                      )}
-             
+    <li>
+      <Link to="/manager/dashboard/um" onClick={toggleMenu}>
+        User Management
+      </Link>
+    </li>
 
-             {user?.role === "member" && (
-              <li>
-                         <Link to="/dashboard/pi" className={styles.navLink}>
-                           Dashboard
-                         </Link>
-                       </li>
-                       )}
+    <li>
+      <Link to="/manager/dashboard/pua" onClick={toggleMenu}>
+        Pending Approvals
+      </Link>
+    </li>
+
+    <li>
+      <Link to="/manager/dashboard/udr" onClick={toggleMenu}>
+        Delete Requests
+      </Link>
+    </li>
+  </>
+)}
+
+{/* For Member */}
+{user?.role === "member" && (
+  <li>
+    <Link to="/dashboard/pi" className={styles.navLink}>
+      Dashboard
+    </Link>
+  </li>
+)}
+
               
 
            

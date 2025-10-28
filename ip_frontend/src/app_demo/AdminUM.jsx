@@ -1,24 +1,15 @@
-
-
-import { useState, useEffect } from "react";
+import  { useState, useEffect } from "react";
 import axios from "axios";
 import PendingUserApproval from "./pendingReqs"
 import styles from "../../../styles/manager/mum.module.css";
 import DeleteUserRequests from "./DelReq";
-import validator from "validator"
 
 const API_HOST = "http://localhost:3000/api";
 
 const AdminUserManagement = () => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(false);
-
   const [error, setError] = useState("");
-
-  const [addError, setAddError] = useState("");
-  const [editError, setEditError] = useState("");
-  const [deleteError, setDeleteError] = useState("");
-
   const [search, setSearch] = useState("");
   const [sortBy, setSortBy] = useState("createdAt");
   const [order, setOrder] = useState("desc");
@@ -67,11 +58,11 @@ const AdminUserManagement = () => {
       setError("");
 
       const res = await axios.get(`${API_HOST}/users`, {
-        params: {
-          search,
-          sortBy,
-          order,
-          page,
+        params: { 
+          search, 
+          sortBy, 
+          order, 
+          page, 
           limit,
           role: "member",
           status: "registered"
@@ -81,7 +72,7 @@ const AdminUserManagement = () => {
         },
       });
       console.log(res);
-
+      
       setUsers(res.data.users || []);
       setTotalPages(res.data.totalPages || 1);
     } catch (err) {
@@ -98,131 +89,11 @@ const AdminUserManagement = () => {
     fetchUsers();
   }, [search, sortBy, order, page, limit]);
 
-
-//   //validator
-//   const validateSelectedUser = (user) => {
-//   const errors = {};
-
-//   // Name
-//   if (!user.name || validator.isEmpty(user.name.trim())) {
-//     errors.name = "Name is required";
-//   }
-
-//   // Email
-//   if (!validator.isEmail(user.email || "")) {
-//     errors.email = "Invalid email address";
-//   }
-
-//   // Phone (must be 10 digits)
-//   if (!validator.isNumeric(user.phone || "") || user.phone.length !== 10) {
-//     errors.phone = "Phone must be a valid 10-digit number";
-//   }
-
-//   // Gender
-//   if (!user.Gender || !["Male", "Female"].includes(user.Gender)) {
-//     errors.Gender = "Gender is required";
-//   }
-
-//   // Unique ID
-//   if (!user.uniqueIdCard || validator.isEmpty(user.uniqueIdCard.trim())) {
-//     errors.uniqueIdCard = "Unique ID is required";
-//   }
-
-//   // Membership
-//   if (!user.membership?.type) {
-//     errors.membershipType = "Membership type is required";
-//   }
-
-//   if (!user.membership?.status) {
-//     errors.membershipStatus = "Membership status is required";
-//   }
-
-//   const startDate = user.membership?.validity?.startDate;
-//   const endDate = user.membership?.validity?.endDate;
-
-//   if (startDate && endDate && new Date(endDate) <= new Date(startDate)) {
-//     errors.validity = "End date must be after start date";
-//   }
-
-//   return errors;
-// };
-
-  //validator
-  const validateSelectedUser = (user) => {
-  const errors = {};
-
-  // Name
-  if (!user.name || validator.isEmpty(user.name.trim())) {
-    setAddError("Name is required");
-    setEditError("Name is required");
-    return true;
-  }
-
-  // Email
-  if (!validator.isEmail(user.email || "")) {
-    setAddError("Invalid email address");
-    setEditError("Invalid email address");
-    return true;
-  }
-
-  // Phone (must be 10 digits)
-  if (!validator.isNumeric(user.phone || "") || user.phone.length !== 10) {
-    setAddError("Phone must be a valid 10-digit number");
-    setEditError("Phone must be a valid 10-digit number");
-    return true;
-  }
-
-  // Gender
-  if (!user.Gender || !["Male", "Female"].includes(user.Gender)) {
-
-    setAddError("Gender is required");
-    setEditError("Gender is required");
-    return true;
-  }
-
-  // Unique ID
-  if (!user.uniqueIdCard || validator.isEmpty(user.uniqueIdCard.trim())) {
-    setAddError("Unique ID is required");
-    setEditError("Unique ID is required");
-    return true;
-  }
-
-  // Membership
-  // if (!user.membership?.type) {
-  //      setAddError("Membership type is required");
-  //   setEditError("Membership type is required");
-  //   return true;
-  // }
-
-  // if (!user.membership?.status) {
-  //      setAddError("Membership status is required");
-  //   setEditError("Membership status is required");
-  //   return true;
-  // }
-
-  const startDate = user.membership?.validity?.startDate;
-  const endDate = user.membership?.validity?.endDate;
-
-  if (user.membership && startDate && endDate && new Date(endDate) <= new Date(startDate)) {
-       setAddError("End date must be after start date");
-    setEditError("End date must be after start date");
-    return true;
-  }
-
-  return false;
-};
-
   // 📝 Update user
   const handleUpdate = async () => {
     try {
       setLoading(true);
-      setEditError("");
-      console.log(selectedUser);
-
-      if(validateSelectedUser(selectedUser)){
-        return;
-      }
-      
+      setError("");
 
       await axios.put(
         `${API_HOST}/auth/update-user/${selectedUser._id}`,
@@ -239,7 +110,7 @@ const AdminUserManagement = () => {
       fetchUsers();
     } catch (err) {
       console.error(err);
-      setEditError(err.response?.data?.message || "Failed to update user.");
+      setError(err.response?.data?.message || "Failed to update user.");
     } finally {
       setLoading(false);
     }
@@ -275,72 +146,65 @@ const AdminUserManagement = () => {
 
 
   const handleDeleteUser = async () => {
-    try {
-      setLoading(true);
-      setDeleteError("");
+  try {
+    setLoading(true);
+    setError("");
 
-      await axios.delete(`${API_HOST}/delete/user/${selectedUser._id}`, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      });
+    await axios.delete(`${API_HOST}/delete/user/${selectedUser._id}`, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+    });
 
-      setModalMode(null);
-      setSelectedUser(null);
-      fetchUsers(); // Refresh the list
-    } catch (err) {
-      console.error(err);
-      setDeleteError(err.response?.data?.message || "Failed to delete user.");
-    } finally {
-      setLoading(false);
-    }
-  };
+    setModalMode(null);
+    setSelectedUser(null);
+    fetchUsers(); // Refresh the list
+  } catch (err) {
+    console.error(err);
+    setError(err.response?.data?.message || "Failed to delete user.");
+  } finally {
+    setLoading(false);
+  }
+};
 
 
 
-  // added
-  //  const handleAddUser = async () => {
-  //     try {
-  //       setLoading(true);
-  //       setError("");
+// added
+//  const handleAddUser = async () => {
+//     try {
+//       setLoading(true);
+//       setError("");
 
-  //       await axios.post(`${API_HOST}/auth/add-user`, newUser, {
-  //         headers: {
-  //           Authorization: `Bearer ${localStorage.getItem("token")}`,
-  //         },
-  //       });
+//       await axios.post(`${API_HOST}/auth/add-user`, newUser, {
+//         headers: {
+//           Authorization: `Bearer ${localStorage.getItem("token")}`,
+//         },
+//       });
 
-  //       setModalMode(null);
-  //       setNewUser({
-  //         name: "",
-  //         email: "",
-  //         password: "",
-  //         phone: "",
-  //         uniqueIdCard: "",
-  //         Gender: "Male",
-  //         role: "member",
-  //         membership: "",
-  //       });
-  //       fetchUsers();
-  //     } catch (err) {
-  //       console.error(err);
-  //       setError(err.response?.data?.message || "Failed to add user.");
-  //     } finally {
-  //       setLoading(false);
-  //     }
-  //   };
+//       setModalMode(null);
+//       setNewUser({
+//         name: "",
+//         email: "",
+//         password: "",
+//         phone: "",
+//         uniqueIdCard: "",
+//         Gender: "Male",
+//         role: "member",
+//         membership: "",
+//       });
+//       fetchUsers();
+//     } catch (err) {
+//       console.error(err);
+//       setError(err.response?.data?.message || "Failed to add user.");
+//     } finally {
+//       setLoading(false);
+//     }
+//   };
 
   const handleAddUser = async () => {
-    if(!newUser){
-      setAddError("All fields are required");
-    }
-    if(validateSelectedUser(newUser)){
-        return;
-      }
     try {
       setLoading(true);
-      setAddError("");
-       
+      setError("");
 
       await axios.post(`${API_HOST}/auth/add-user`, newUser, {
         headers: {
@@ -369,29 +233,29 @@ const AdminUserManagement = () => {
       fetchUsers();
     } catch (err) {
       console.error(err);
-      setAddError(err.response?.data?.message || "Failed to add user.");
+      setError(err.response?.data?.message || "Failed to add user.");
     } finally {
       setLoading(false);
     }
   };
   ////////
   console.log(modalMode);
-
+  
   return (
     <div className={styles.aumcontainer}>
       <h2 className={styles.mumheader}>User Management</h2>
 
       {/* Search + Sort */}
       <input
-        type="text"
-        id={styles.searchBar2}
-        placeholder="Search users..."
-        value={search}
-        onChange={(e) => {
-          setPage(1);
-          setSearch(e.target.value);
-        }}
-      />
+          type="text"
+          id={styles.searchBar2}
+          placeholder="Search users..."
+          value={search}
+          onChange={(e) => {
+            setPage(1);
+            setSearch(e.target.value);
+          }}
+        />
       <div className={styles.controls}>
         <input
           type="text"
@@ -403,13 +267,13 @@ const AdminUserManagement = () => {
             setSearch(e.target.value);
           }}
         />
-        <button
-          style={{ cursor: "pointer" }}
+ <button
+           style={{cursor:"pointer"}}
 
           className={styles.addBtn}
           onClick={() => setModalMode("add")}
         >
-          Add User
+           Add User
         </button>
         <select value={sortBy} onChange={(e) => setSortBy(e.target.value)}>
           <option value="createdAt">Created At</option>
@@ -423,11 +287,11 @@ const AdminUserManagement = () => {
       </div>
 
       {/* Loader & Error */}
-      {loading && <p
-        // style={{ textAlign: "center" }}
-        className={styles.empty}>
+      {loading && <p 
+      // style={{ textAlign: "center" }}
+      className={styles.empty}>
         Loading...</p>}
-      {error && <p id={styles.errormsg} style={{ color: "red", textAlign: "center", padding: "4px" }}>{error}</p>}
+      {error && <p id={styles.errormsg} style={{ color: "red", textAlign: "center",padding:"4px" }}>{error}</p>}
 
       {/* User Cards */}
       <div className={styles.userGrid}>
@@ -443,7 +307,7 @@ const AdminUserManagement = () => {
             >
               <div className={styles.cardHeader}>
                 <h3>{user.name}</h3>
-                <span style={{ backgroundColor: user.membership?.status === "active" ? "#50f39f35" : "#cd212139" }} className={styles.role}>
+                <span style={{backgroundColor:user.membership?.status==="active"?"#50f39f35":"#cd212139"}} className={styles.role}>
                   {user.membership?.status || "inactive"}
                 </span>
               </div>
@@ -501,11 +365,10 @@ const AdminUserManagement = () => {
 
 
 
-      {modalMode === "add" && (
+   {modalMode === "add" && (
         <div className={styles.modal}>
           <div className={styles.modalContent}>
             <h3>Add User</h3>
-            {addError && <p style={{ color: "red" }}>{addError}</p>}
 
             <input
               type="text"
@@ -652,13 +515,7 @@ const AdminUserManagement = () => {
               </button>
               <button
                 className={styles.cancelButton}
-                onClick={() => {setModalMode(null)
-
-
-                    setAddError("");
-                    setEditError("");
-                }
-                }
+                onClick={() => setModalMode(null)}
               >
                 Cancel
               </button>
@@ -672,63 +529,63 @@ const AdminUserManagement = () => {
 
       {selectedUser && (
         <div className={styles.modal}>
-
-          {/* <div
+   
+            {/* <div
     className={`${styles.modalContent} ${
       styles[selectedUser.membership?.type?.toLowerCase()]}
         ${styles["ucard"]}
       }`}
     > */}
 
-          <div
-            className={`${styles.modalContent} ${modalMode === "view"
-                ? styles[selectedUser.membership?.type?.toLowerCase()]
-                : ""
-              } ${styles["ucard"]}`}
+      <div
+  className={`${styles.modalContent} ${
+    modalMode === "view"
+      ? styles[selectedUser.membership?.type?.toLowerCase()]
+      : ""
+  } ${styles["ucard"]}`}
+>
+
+    {modalMode === "view" && (
+      <>
+        <h3>User Details</h3>
+        <p><b>Name:</b> {selectedUser.name}</p>
+        <p><b>Email:</b> {selectedUser.email}</p>
+        <p>
+          <b>Gender:</b>{" "}
+          <span
+            className={`${styles.genderBadge} ${
+              selectedUser.Gender === "Male" ? styles.male : styles.female
+            }`}
           >
-
-            {modalMode === "view" && (
-              <>
-                <h3>User Details</h3>
-                <p><b>Name:</b> {selectedUser.name}</p>
-                <p><b>Email:</b> {selectedUser.email}</p>
-                <p>
-                  <b>Gender:</b>{" "}
-                  <span
-                    className={`${styles.genderBadge} ${selectedUser.Gender === "Male" ? styles.male : styles.female
-                      }`}
-                  >
-                    {selectedUser.Gender}
-                  </span>
-                </p>
-                <p><b>Phone:</b> {selectedUser.phone}</p>
-                <p><b>Status:</b> {selectedUser.status}</p>
-                <p><b>Unique ID:</b> {selectedUser.uniqueIdCard}</p>
-                <p>
-                  <b>Membership:</b> {selectedUser.membership?.type || "-"} (
-                  {selectedUser.membership?.status})
-                </p>
-                <p>
-                  <b>Validity:</b>{" "}
-                  {selectedUser.membership?.validity?.startDate || "-"} to{" "}
-                  {selectedUser.membership?.validity?.endDate || "-"}
-                </p>
-                <button
-                  style={{ margin: "0px" }}
-                  className={styles.cancelButton}
-                  onClick={() => setSelectedUser(null)}
-                >
-                  Close
-                </button>
-              </>
-            )}
-
+            {selectedUser.Gender}
+          </span>
+        </p>
+        <p><b>Phone:</b> {selectedUser.phone}</p>
+        <p><b>Status:</b> {selectedUser.status}</p>
+        <p><b>Unique ID:</b> {selectedUser.uniqueIdCard}</p>
+        <p>
+          <b>Membership:</b> {selectedUser.membership?.type || "-"} (
+          {selectedUser.membership?.status})
+        </p>
+        <p>
+          <b>Validity:</b>{" "}
+          {selectedUser.membership?.validity?.startDate || "-"} to{" "}
+          {selectedUser.membership?.validity?.endDate || "-"}
+        </p>
+        <button
+        style={{margin:"0px"}}
+          className={styles.cancelButton}
+          onClick={() => setSelectedUser(null)}
+        >
+          Close
+        </button>
+      </>
+    )}
+  
 
             {modalMode === "edit" && (
               <>
                 <h3>Edit User</h3>
-                            {editError && <p style={{ color: "red" }}>{editError}</p>}
-
                 <input
                   type="text"
                   placeholder="Name"
@@ -817,8 +674,8 @@ const AdminUserManagement = () => {
                   value={
                     selectedUser.membership?.validity?.startDate
                       ? new Date(
-                        selectedUser.membership.validity.startDate
-                      ).toISOString().split("T")[0]
+                          selectedUser.membership.validity.startDate
+                        ).toISOString().split("T")[0]
                       : ""
                   }
                   onChange={(e) =>
@@ -840,8 +697,8 @@ const AdminUserManagement = () => {
                   value={
                     selectedUser.membership?.validity?.endDate
                       ? new Date(
-                        selectedUser.membership.validity.endDate
-                      ).toISOString().split("T")[0]
+                          selectedUser.membership.validity.endDate
+                        ).toISOString().split("T")[0]
                       : ""
                   }
                   onChange={(e) =>
@@ -866,13 +723,7 @@ const AdminUserManagement = () => {
                   >
                     {loading ? "Updating..." : "Update"}
                   </button>
-                  <button className={styles.cancelButton} onClick={() => {setSelectedUser(null)
-
-setAddError("");
-setEditError("");
-                  }
-                
-                }>Cancel</button>
+                  <button className={styles.cancelButton} onClick={() => setSelectedUser(null)}>Cancel</button>
                 </div>
               </>
             )}
@@ -880,8 +731,6 @@ setEditError("");
             {modalMode === "delete" && (
               <>
                 <h3>are you sure you want to delete the account of {selectedUser.name}?</h3>
-                            {deleteError && <p style={{ color: "red" }}>{deleteError}</p>}
-
                 <div>
                   <button
                     className={styles.deleteBtn}
@@ -898,7 +747,7 @@ setEditError("");
         </div>
       )}
 
-      {/* 
+{/* 
   <PendingUserApproval/>
   <DeleteUserRequests/> */}
     </div>

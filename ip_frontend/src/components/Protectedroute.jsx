@@ -62,6 +62,9 @@ export default function ProtectedRoute({ children, role }) {
   if (!user) return <Navigate to="/login" replace />;
 
   if (role && user.role?.toLowerCase() !== role.toLowerCase()) {
+   
+
+    
     return <Navigate to="/" replace />;
   }
 

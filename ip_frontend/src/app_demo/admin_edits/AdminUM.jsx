@@ -5,7 +5,6 @@ import axios from "axios";
 import PendingUserApproval from "./pendingReqs"
 import styles from "../../../styles/manager/mum.module.css";
 import DeleteUserRequests from "./DelReq";
-import validator from "validator"
 
 const API_HOST = "http://localhost:3000/api";
 
@@ -98,130 +97,12 @@ const AdminUserManagement = () => {
     fetchUsers();
   }, [search, sortBy, order, page, limit]);
 
-
-//   //validator
-//   const validateSelectedUser = (user) => {
-//   const errors = {};
-
-//   // Name
-//   if (!user.name || validator.isEmpty(user.name.trim())) {
-//     errors.name = "Name is required";
-//   }
-
-//   // Email
-//   if (!validator.isEmail(user.email || "")) {
-//     errors.email = "Invalid email address";
-//   }
-
-//   // Phone (must be 10 digits)
-//   if (!validator.isNumeric(user.phone || "") || user.phone.length !== 10) {
-//     errors.phone = "Phone must be a valid 10-digit number";
-//   }
-
-//   // Gender
-//   if (!user.Gender || !["Male", "Female"].includes(user.Gender)) {
-//     errors.Gender = "Gender is required";
-//   }
-
-//   // Unique ID
-//   if (!user.uniqueIdCard || validator.isEmpty(user.uniqueIdCard.trim())) {
-//     errors.uniqueIdCard = "Unique ID is required";
-//   }
-
-//   // Membership
-//   if (!user.membership?.type) {
-//     errors.membershipType = "Membership type is required";
-//   }
-
-//   if (!user.membership?.status) {
-//     errors.membershipStatus = "Membership status is required";
-//   }
-
-//   const startDate = user.membership?.validity?.startDate;
-//   const endDate = user.membership?.validity?.endDate;
-
-//   if (startDate && endDate && new Date(endDate) <= new Date(startDate)) {
-//     errors.validity = "End date must be after start date";
-//   }
-
-//   return errors;
-// };
-
-  //validator
-  const validateSelectedUser = (user) => {
-  const errors = {};
-
-  // Name
-  if (!user.name || validator.isEmpty(user.name.trim())) {
-    setAddError("Name is required");
-    setEditError("Name is required");
-    return true;
-  }
-
-  // Email
-  if (!validator.isEmail(user.email || "")) {
-    setAddError("Invalid email address");
-    setEditError("Invalid email address");
-    return true;
-  }
-
-  // Phone (must be 10 digits)
-  if (!validator.isNumeric(user.phone || "") || user.phone.length !== 10) {
-    setAddError("Phone must be a valid 10-digit number");
-    setEditError("Phone must be a valid 10-digit number");
-    return true;
-  }
-
-  // Gender
-  if (!user.Gender || !["Male", "Female"].includes(user.Gender)) {
-
-    setAddError("Gender is required");
-    setEditError("Gender is required");
-    return true;
-  }
-
-  // Unique ID
-  if (!user.uniqueIdCard || validator.isEmpty(user.uniqueIdCard.trim())) {
-    setAddError("Unique ID is required");
-    setEditError("Unique ID is required");
-    return true;
-  }
-
-  // Membership
-  // if (!user.membership?.type) {
-  //      setAddError("Membership type is required");
-  //   setEditError("Membership type is required");
-  //   return true;
-  // }
-
-  // if (!user.membership?.status) {
-  //      setAddError("Membership status is required");
-  //   setEditError("Membership status is required");
-  //   return true;
-  // }
-
-  const startDate = user.membership?.validity?.startDate;
-  const endDate = user.membership?.validity?.endDate;
-
-  if (user.membership && startDate && endDate && new Date(endDate) <= new Date(startDate)) {
-       setAddError("End date must be after start date");
-    setEditError("End date must be after start date");
-    return true;
-  }
-
-  return false;
-};
-
   // 📝 Update user
   const handleUpdate = async () => {
     try {
       setLoading(true);
       setEditError("");
       console.log(selectedUser);
-
-      if(validateSelectedUser(selectedUser)){
-        return;
-      }
       
 
       await axios.put(
@@ -331,16 +212,9 @@ const AdminUserManagement = () => {
   //   };
 
   const handleAddUser = async () => {
-    if(!newUser){
-      setAddError("All fields are required");
-    }
-    if(validateSelectedUser(newUser)){
-        return;
-      }
     try {
       setLoading(true);
       setAddError("");
-       
 
       await axios.post(`${API_HOST}/auth/add-user`, newUser, {
         headers: {
@@ -656,7 +530,6 @@ const AdminUserManagement = () => {
 
 
                     setAddError("");
-                    setEditError("");
                 }
                 }
               >
@@ -728,7 +601,7 @@ const AdminUserManagement = () => {
               <>
                 <h3>Edit User</h3>
                             {editError && <p style={{ color: "red" }}>{editError}</p>}
-
+                
                 <input
                   type="text"
                   placeholder="Name"
@@ -868,7 +741,7 @@ const AdminUserManagement = () => {
                   </button>
                   <button className={styles.cancelButton} onClick={() => {setSelectedUser(null)
 
-setAddError("");
+
 setEditError("");
                   }
                 
@@ -906,3 +779,4 @@ setEditError("");
 };
 
 export default AdminUserManagement;
+

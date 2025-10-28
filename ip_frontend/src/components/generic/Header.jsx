@@ -81,7 +81,7 @@ export default function Header() {
             </Link>
           )}
 
-          {(user?.role === "admin" || user?.role === "manager") && (
+          {(user?.role === "admin" ) && (
             <div className={styles.dropdown}>
               <button className={styles.dropBtn}
               onClick={() => setShowDropdown(!showDropdown)}>
@@ -110,6 +110,40 @@ export default function Header() {
                 <Link to="/dashboard/um">User Management</Link>
                 <Link to="/dashboard/pua">Pending Approvals</Link>
                 <Link to="/dashboard/udr">Delete Requests</Link>
+              </div>
+            </div>
+          )}
+
+
+           {(user?.role === "manager") && (
+            <div className={styles.dropdown}>
+              <button className={styles.dropBtn}
+              onClick={() => setShowDropdown(!showDropdown)}>
+
+
+   Dashboard{" "}
+        <span
+          // className={styles.arrow}
+          style={{
+            display: "inline-block",
+            fontSize: "10px",
+            transition: "transform 0.3s ease",
+            transform: showDropdown ? "rotate(180deg)" : "rotate(0deg)",
+          }}
+        >
+          ▼
+        </span>
+          
+                
+              </button>
+              <div 
+              className={styles.dropdownContent}
+              style={{display: showDropdown ? 'flex' : 'none'}}
+              >
+                <Link to="/manager/dashboard/am">Attendance Management</Link>
+                <Link to="/manager/dashboard/um">User Management</Link>
+                <Link to="/manager/dashboard/pua">Pendngi Approvals</Link>
+                <Link to="/manager/dashboard/udr">Delete Requests</Link>
               </div>
             </div>
           )}
