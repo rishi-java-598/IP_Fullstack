@@ -113,8 +113,8 @@ const MarkAttendance = () => {
   const handleRemove = async member => {
     if (!window.confirm(`Remove ${member.memberName} from today's attendance?`)) return;
     try {
-      await api.deleteMemberFromToday({ date: today, memberId: member.memberId });
       loadToday();
+      await api.deleteMemberFromToday({ date: today, memberId: member.memberId });
     } catch (err) {
       console.error(err);
       alert(err?.data?.message || 'Failed to remove');

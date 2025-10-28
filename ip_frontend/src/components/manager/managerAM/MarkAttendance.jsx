@@ -485,6 +485,8 @@ const MarkAttendance = () => {
     const newMember = {
       memberId: user._id,
       memberName: user.name,
+            memberEmail: user.email || '',
+
       membershipType: user.membership?.type || '',
       uniqueIdCard: user.uniqueIdCard || '',
       slot,
@@ -523,6 +525,8 @@ const MarkAttendance = () => {
 
     const members = newMembers.map(m => ({
       memberId: m.memberId,
+            memberEmail: m.memberEmail,
+
       memberName: m.memberName,
       membershipType: m.membershipType,
       uniqueIdCard: m.uniqueIdCard,
