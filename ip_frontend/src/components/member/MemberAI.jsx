@@ -158,7 +158,7 @@ const MemberAI = ({ userId }) => {
               <div>
                 <strong>{new Date(r.date).toLocaleDateString()}</strong>
               </div>
-              <div>Slot {r.slot}</div>
+              <div>{r.slot}</div>
             </div>
           ))}
       </div>
