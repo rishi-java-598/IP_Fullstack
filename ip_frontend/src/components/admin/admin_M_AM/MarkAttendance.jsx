@@ -1,6 +1,7 @@
 //part 3
-import { useEffect, useMemo, useState } from 'react';
+import { use, useEffect, useMemo, useState } from 'react';
 import styles from './style.module.css';
+import styles2 from './modal.module.css'
 import { MdDelete } from "react-icons/md";
 import { CiEdit } from "react-icons/ci";
 
@@ -16,6 +17,14 @@ const toISODate = (d = new Date()) => {
 
 const MarkAttendance = () => {
   const today = toISODate(new Date());
+
+  const [modal,setModal] = useState('');
+  const [islot,setIslot] = useState('');
+  const [slotError,setslotError] = useState('');
+  const [selectedUSer,setSelectedUser] = useState(null);
+  const [selectedEditUSer,setSelectedEditUSer] = useState(null);
+
+
 
   const [allUsers, setAllUsers] = useState([]);
   const [markedToday, setMarkedToday] = useState([]); // already marked today
@@ -93,9 +102,22 @@ const MarkAttendance = () => {
   }, [unmarkedUsers, unmarkedPage]);
 
   const handleMarkPresent = user => {
-    const slotStr = prompt('Enter slot number (1-9) for ' + user.name, '1');
+    // const slotStr = prompt('Enter slot number (1-9) for ' + user.name, '1');
+    
+     if (!islot || islot < 1 || islot > 9 || isNaN(Number(islot))){
+      setslotError("invalid slot")
+      return;
+    }
+    const slotStr = islot;
+
+    
     const slot = Number(slotStr);
-    if (!slot || slot < 1 || slot > 9) return alert('Invalid slot');
+  //  if (!slot || slot < 1 || slot > 9){
+  //     setslotError("invalid slot")
+  //     return;
+  //   }
+    
+    // return alert('Invalid slot');
 
     const newMember = {
       memberId: user._id,
@@ -106,7 +128,9 @@ const MarkAttendance = () => {
       uniqueIdCard: user.uniqueIdCard || '',
       slot,
     };
-
+    setIslot("")
+    setSelectedUser();
+    setModal("");
     setMarkedToday(prev => [...prev, newMember]);
   };
 
@@ -141,16 +165,38 @@ const MarkAttendance = () => {
 };
 
 
+  // const handleUpdateSlot = async member => {
+  //   const newSlotStr = prompt(`Enter new slot (1-9) for ${member.memberName}`, member.slot);
+  //   const newSlot = Number(newSlotStr);
+  //   if (!newSlot || newSlot < 1 || newSlot > 9) return alert('Invalid slot');
+  //   try {
+  //     await api.updateMemberSlot({ date: today, memberId: member.memberId, newSlot });
+  //     loadToday();
+  //   } catch (err) {
+  //     console.error(err);
+  //     alert(err?.data?.message || 'Failed to update slot');
+  //   }
+  // };
   const handleUpdateSlot = async member => {
-    const newSlotStr = prompt(`Enter new slot (1-9) for ${member.memberName}`, member.slot);
-    const newSlot = Number(newSlotStr);
-    if (!newSlot || newSlot < 1 || newSlot > 9) return alert('Invalid slot');
+  
+     if (!islot || islot < 1 || islot > 9 || isNaN(Number(islot))){
+      setslotError("invalid slot")
+      return;
+    }    
+    
+    const newSlot = Number(islot);
     try {
       await api.updateMemberSlot({ date: today, memberId: member.memberId, newSlot });
       loadToday();
+
+       setIslot("")
+    setSelectedEditUSer();
+    setModal("");
     } catch (err) {
       console.error(err);
-      alert(err?.data?.message || 'Failed to update slot');
+      setslotError(err?.data?.message || 'Failed to update slot');
+
+      
     }
   };
 
@@ -183,7 +229,8 @@ console.log(newMembers);
       setSaving(false);
     }
   };
-
+  // console.log(modal);
+  
   // total pages
   const markedTotalPages = Math.ceil(filteredMarked.length / limit) || 1;
   const unmarkedTotalPages = Math.ceil(unmarkedUsers.length / limit) || 1;
@@ -219,7 +266,13 @@ console.log(newMembers);
                   <div className={styles.slot}>Slot: {m.slot}</div>
                 </div>
                 <div className={styles.actions}>
-                  <button className={styles.editBTN} onClick={() => handleUpdateSlot(m)}>
+                  <button className={styles.editBTN} 
+                  // onClick={() => handleUpdateSlot(m)}
+                  onClick={() =>{ setModal("edit")
+                    setSelectedEditUSer(m)
+                  }}
+                  
+                  >
                     {/* Edit Slot  */}
                   <span id={styles.editIcon}><CiEdit /></span>
                     </button>
@@ -288,7 +341,14 @@ console.log(newMembers);
                   </div>
                 </div>
                 <div>
-                  <button id={styles.markBTN} onClick={() => handleMarkPresent(u)}>Mark</button>
+                  <button id={styles.markBTN} 
+                  onClick={()=>{setModal('slot')
+                    setSelectedUser(u);
+                  }
+                  }
+                  // onClick={() => handleMarkPresent(u)}
+                  
+                  >Mark</button>
                 </div>
               </div>
             ))}
@@ -314,6 +374,82 @@ console.log(newMembers);
           </div>
         </aside>
       </div>
+      { modal &&(
+      <div className={styles2.modal}>
+
+
+        { (modal==="slot"||modal==="edit") && (
+        <div className={styles2.modalContent}>
+          <div className={styles2.ids} >
+            {slotError && <p style={{color:"red"}}>Invalid Slot</p>}
+          {  modal==="slot" &&  <h3>Enter Slot 1 to 9</h3>}
+          {  modal==="edit" &&  <h3>Edit Slot </h3>}
+            <input className={styles2.si} type="text" 
+            value={islot}
+            placeholder="Slot"
+
+            onChange={(e)=>setIslot(e.target.value)}
+            
+            />   
+            <div className={styles2.bind}>
+          {  modal==="slot" &&  <button
+              style={{backgroundColor:"#258a25ff"}}
+
+              className={styles2.mkb}
+              onClick={()=>{handleMarkPresent(selectedUSer)
+
+              // setslotError("");
+
+              }}
+              >mark</button>}
+          {  modal==="edit" &&  <button
+              style={{backgroundColor:"#258a25ff"}}
+
+              className={styles2.mkb}
+              onClick={()=>{handleUpdateSlot(selectedEditUSer)
+
+              // setslotError("");
+
+              }}
+              >save</button>}
+
+              {modal==="slot" && <button 
+              className={styles2.mkb}
+              style={{backgroundColor:"#626462"}}
+
+              onClick={()=>{setModal("")
+                setIslot("");
+                setSelectedUser(null)
+                setslotError("");
+              }
+              }
+              >cancel</button>}
+
+              {modal==="edit" && <button 
+              className={styles2.mkb}
+              style={{backgroundColor:"#626462"}}
+
+              onClick={()=>{setModal("")
+                setIslot("");
+                setSelectedEditUSer(null)
+                setslotError("");
+              }
+              }
+              >cancel</button>}
+            </div>
+          </div>
+           
+        </div>)
+      }
+
+
+
+
+
+        </div>
+      )
+
+        }
     </div>
   );
 };

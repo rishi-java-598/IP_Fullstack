@@ -110,16 +110,36 @@ const MarkAttendance = () => {
     setMarkedToday(prev => [...prev, newMember]);
   };
 
+  // const handleRemove = async member => {
+  //   if (!window.confirm(`Remove ${member.memberName} from today's attendance?`)) return;
+  //   try {
+  //     loadToday();
+  //     await api.deleteMemberFromToday({ date: today, memberId: member.memberId });
+  //   } catch (err) {
+  //     console.error(err);
+  //     alert(err?.data?.message || 'Failed to remove');
+  //   }
+  // };
+
+
   const handleRemove = async member => {
-    if (!window.confirm(`Remove ${member.memberName} from today's attendance?`)) return;
-    try {
-      loadToday();
-      await api.deleteMemberFromToday({ date: today, memberId: member.memberId });
-    } catch (err) {
-      console.error(err);
-      alert(err?.data?.message || 'Failed to remove');
-    }
-  };
+  // Check for unsaved members before allowing delete
+  const unsavedMembers = markedToday.filter(m => !m._id);
+  if (unsavedMembers.length > 0) {
+    alert('Save unmarked users first');
+    return;
+  }
+
+  if (!window.confirm(`Remove ${member.memberName} from today's attendance?`)) return;
+  try {
+    await api.deleteMemberFromToday({ date: today, memberId: member.memberId });
+    loadToday();
+  } catch (err) {
+    console.error(err);
+    alert(err?.data?.message || 'Failed to remove');
+  }
+};
+
 
   const handleUpdateSlot = async member => {
     const newSlotStr = prompt(`Enter new slot (1-9) for ${member.memberName}`, member.slot);
