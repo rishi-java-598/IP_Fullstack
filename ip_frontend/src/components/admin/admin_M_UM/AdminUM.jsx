@@ -331,12 +331,21 @@ const AdminUserManagement = () => {
   //   };
 
   const handleAddUser = async () => {
+    
+    
     if(!newUser){
       setAddError("All fields are required");
     }
     if(validateSelectedUser(newUser)){
         return;
       }
+    if(newUser.password.length < 6){
+       setAddError("password should have at least 6 characters");
+       return ;
+
+    }
+
+
     try {
       setLoading(true);
       setAddError("");

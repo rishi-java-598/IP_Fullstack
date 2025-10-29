@@ -264,6 +264,12 @@ const ManagerUserManagement = () => {
     if(validateSelectedUser(newUser)){
         return;
       }
+       if(newUser.password.length < 6){
+       setAddError("password should have at least 6 characters");
+       return ;
+
+    }
+
     try {
       setLoading(true);
       setAddError("");
