@@ -1,5 +1,5 @@
 //part 3
-import { use, useEffect, useMemo, useState } from 'react';
+import {  useEffect, useMemo, useState } from 'react';
 import styles from './style.module.css';
 import styles2 from './modal.module.css'
 import { MdDelete } from "react-icons/md";
@@ -19,10 +19,12 @@ const MarkAttendance = () => {
   const today = toISODate(new Date());
 
   const [modal,setModal] = useState('');
+  const [modalMessage,setModalMessage] = useState('');
   const [islot,setIslot] = useState('');
   const [slotError,setslotError] = useState('');
   const [selectedUSer,setSelectedUser] = useState(null);
   const [selectedEditUSer,setSelectedEditUSer] = useState(null);
+  const [selectedDeleteUSer,setSelectedDeleteUSer] = useState(null);
 
 
 
@@ -145,22 +147,35 @@ const MarkAttendance = () => {
   //   }
   // };
 
+  const removePrior = (m) =>{
+    const unsavedMembers = markedToday.filter(m => !m._id);
+  if (unsavedMembers.length > 0) {
+    setModalMessage('Save unmarked users first');
+    setModal("alert")
+    return;
+  }
+  else{
+
+    setModal("confirm")
+    setSelectedDeleteUSer(m)
+  }
+
+  }
+
 
   const handleRemove = async member => {
   // Check for unsaved members before allowing delete
-  const unsavedMembers = markedToday.filter(m => !m._id);
-  if (unsavedMembers.length > 0) {
-    alert('Save unmarked users first');
-    return;
-  }
+  
 
-  if (!window.confirm(`Remove ${member.memberName} from today's attendance?`)) return;
+  // if (!window.confirm(`Remove ${member.memberName} from today's attendance?`)) return;
   try {
     await api.deleteMemberFromToday({ date: today, memberId: member.memberId });
     loadToday();
+    setModal("")
   } catch (err) {
     console.error(err);
-    alert(err?.data?.message || 'Failed to remove');
+    setModalMessage(err?.data?.message || 'Failed to remove');
+    setModal("alert")
   }
 };
 
@@ -202,8 +217,11 @@ const MarkAttendance = () => {
 
   const handleSave = async () => {
     const newMembers = markedToday.filter(m => !allUsers.some(u => u._id === m.memberId && m._id));
-    if (newMembers.length === 0) return alert('No new members to save');
-console.log(newMembers);
+    if (newMembers.length === 0) {
+      setModalMessage('No new members to save');
+      setModal("alert");
+return;
+    } 
 
     const members = newMembers.map(m => ({
       memberId: m.memberId,
@@ -219,9 +237,11 @@ console.log(newMembers);
     setSaving(true);
     try {
       await api.markAttendance(body);
-      alert('Saved successfully');
+      setModalMessage('Saved successfully');
+
       loadToday();
       loadUsers();
+      setModal("alert");
     } catch (err) {
       console.error(err);
       alert(err?.data?.message || 'Failed to save');
@@ -276,7 +296,9 @@ console.log(newMembers);
                     {/* Edit Slot  */}
                   <span id={styles.editIcon}><CiEdit /></span>
                     </button>
-                  <button className={styles.remove} onClick={() => handleRemove(m)}>
+                  <button className={styles.remove} onClick={() => {
+                    
+                    removePrior(m)}}>
                     {/* Remove  */}
                     <span id={styles.removeIcon}><MdDelete /></span>
                     </button>
@@ -440,14 +462,65 @@ console.log(newMembers);
           </div>
            
         </div>)
-      }
 
+
+
+
+              
+
+
+
+
+
+      }
+         {modal === "alert" && (
+            <div className={styles2.modalContent}>
+              <h3  style={{marginBottom:"10px"}}>{modalMessage}</h3>
+              <button
+                className={styles2.mkb}
+                onClick={() => {setModal("")
+                  setModalMessage("");
+                }
+                }
+                style={{ backgroundColor: "#258a25ff" }}
+              >
+                OK
+              </button>
+            </div>
+          )}
+
+          {/* CONFIRM MODAL */}
+          {modal === "confirm" && (
+            <div className={styles2.modalContent}>
+              <h3 style={{marginBottom:"10px"}}>Remove {selectedDeleteUSer.memberName} from today's attendance?</h3>
+              <div className={styles2.bind}>
+                <button
+                  className={styles2.mkb}
+                  style={{ backgroundColor: "#d9534f" }}
+                  onClick={() => {
+                    handleRemove(selectedDeleteUSer);
+                  }}
+                >
+                  Delete
+                </button>
+                <button
+                  className={styles2.mkb}
+                  style={{ backgroundColor: "#666" }}
+                  onClick={() => setModal("")}
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          )}
 
 
 
 
         </div>
       )
+
+      
 
         }
     </div>
