@@ -12,6 +12,8 @@ const API_HOST = "http://localhost:3000/api";
 const AdminUserManagement = () => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [membershipStatus, setMembershipStatus] = useState("all");
+  
 
   const [error, setError] = useState("");
 
@@ -67,15 +69,16 @@ const AdminUserManagement = () => {
       setError("");
 
       const res = await axios.get(`${API_HOST}/users`, {
-        params: {
-          search,
-          sortBy,
-          order,
-          page,
-          limit,
-          role: "member",
-          status: "registered"
-        },
+            params: { 
+  search, 
+  sortBy, 
+  order, 
+  page, 
+  limit,
+  role: "member",
+  status: "registered",
+  membershipStatus: membershipStatus !== "all" ? membershipStatus : undefined,
+},
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
@@ -96,7 +99,7 @@ const AdminUserManagement = () => {
 
   useEffect(() => {
     fetchUsers();
-  }, [search, sortBy, order, page, limit]);
+  }, [search, sortBy, order, page, limit,membershipStatus]);
 
 
 //   //validator
@@ -391,20 +394,11 @@ const AdminUserManagement = () => {
       <h2 className={styles.mumheader}>User Management</h2>
 
       {/* Search + Sort */}
-      <input
-        type="text"
-        id={styles.searchBar2}
-        placeholder="Search users..."
-        value={search}
-        onChange={(e) => {
-          setPage(1);
-          setSearch(e.target.value);
-        }}
-      />
-      <div className={styles.controls}>
-        <input
+ <div className={styles.upd}>
+
+           <input
           type="text"
-          id={styles.searchBar}
+          id={styles.searchBar2}
           placeholder="Search users..."
           value={search}
           onChange={(e) => {
@@ -412,25 +406,58 @@ const AdminUserManagement = () => {
             setSearch(e.target.value);
           }}
         />
-        <button
-          style={{ cursor: "pointer" }}
+         <button
+           style={{cursor:"pointer"}}
+          id={styles.uadd}
 
           className={styles.addBtn}
           onClick={() => setModalMode("add")}
         >
-          Add User
+           Add User
         </button>
-        <select value={sortBy} onChange={(e) => setSortBy(e.target.value)}>
-          <option value="createdAt">Created At</option>
-          <option value="name">Name</option>
-          <option value="email">Email</option>
-        </select>
-        <select value={order} onChange={(e) => setOrder(e.target.value)}>
-          <option value="desc">Desc</option>
-          <option value="asc">Asc</option>
-        </select>
       </div>
-
+         <div className={styles.controls}>
+              <input
+                type="text"
+                id={styles.searchBar}
+                placeholder="Search users..."
+                value={search}
+                onChange={(e) => {
+                  setPage(1);
+                  setSearch(e.target.value);
+                }}
+              />
+       <button
+                 style={{cursor:"pointer"}}
+                id={styles.dadd}
+                className={styles.addBtn}
+                onClick={() => setModalMode("add")}
+              >
+                 Add User
+              </button>
+              <select
+        value={membershipStatus}
+        onChange={(e) => {
+          setMembershipStatus(e.target.value);
+          setPage(1);
+        }}
+      >
+        <option value="all">status</option>
+        <option value="active">Active</option>
+        <option value="inactive">Inactive</option>
+      </select>
+      
+              <select value={sortBy} onChange={(e) => setSortBy(e.target.value)}>
+                <option value="createdAt">Created At</option>
+                <option value="name">Name</option>
+                <option value="email">Email</option>
+              </select>
+              <select value={order} onChange={(e) => setOrder(e.target.value)}>
+                <option value="desc">Desc</option>
+                <option value="asc">Asc</option>
+              </select>
+            </div>
+      
       {/* Loader & Error */}
       {loading && <p
         // style={{ textAlign: "center" }}

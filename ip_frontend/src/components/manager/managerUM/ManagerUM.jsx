@@ -11,6 +11,8 @@ const API_HOST = "http://localhost:3000/api";
 const ManagerUserManagement = () => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [membershipStatus, setMembershipStatus] = useState("all");
+
 
   const [error, setError] = useState("");
 
@@ -66,15 +68,26 @@ const ManagerUserManagement = () => {
       setError("");
 
       const res = await axios.get(`${API_HOST}/users`, {
+        // params: { 
+        //   search, 
+        //   sortBy, 
+        //   order, 
+        //   page, 
+        //   limit,
+        //   role: "member",
+        //   status: "registered"
+        // },
         params: { 
-          search, 
-          sortBy, 
-          order, 
-          page, 
-          limit,
-          role: "member",
-          status: "registered"
-        },
+  search, 
+  sortBy, 
+  order, 
+  page, 
+  limit,
+  role: "member",
+  status: "registered",
+  membershipStatus: membershipStatus !== "all" ? membershipStatus : undefined,
+},
+
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
@@ -95,7 +108,7 @@ const ManagerUserManagement = () => {
 
   useEffect(() => {
     fetchUsers();
-  }, [search, sortBy, order, page, limit]);
+  }, [search, sortBy, order, page, limit,membershipStatus]);
 
 
    const validateSelectedUser = (user) => {
@@ -315,7 +328,9 @@ const ManagerUserManagement = () => {
       <h2 className={styles.mumheader}>User Management</h2>
 
       {/* Search + Sort */}
-      <input
+      <div className={styles.upd}>
+
+           <input
           type="text"
           id={styles.searchBar2}
           placeholder="Search users..."
@@ -325,6 +340,17 @@ const ManagerUserManagement = () => {
             setSearch(e.target.value);
           }}
         />
+         <button
+           style={{cursor:"pointer"}}
+          id={styles.uadd}
+
+          className={styles.addBtn}
+          onClick={() => setModalMode("add")}
+        >
+           Add User
+        </button>
+      </div>
+   
       <div className={styles.controls}>
         <input
           type="text"
@@ -338,12 +364,24 @@ const ManagerUserManagement = () => {
         />
  <button
            style={{cursor:"pointer"}}
-
+          id={styles.dadd}
           className={styles.addBtn}
           onClick={() => setModalMode("add")}
         >
            Add User
         </button>
+        <select
+  value={membershipStatus}
+  onChange={(e) => {
+    setMembershipStatus(e.target.value);
+    setPage(1);
+  }}
+>
+  <option value="all">status</option>
+  <option value="active">Active</option>
+  <option value="inactive">Inactive</option>
+</select>
+
         <select value={sortBy} onChange={(e) => setSortBy(e.target.value)}>
           <option value="createdAt">Created At</option>
           <option value="name">Name</option>
@@ -455,7 +493,7 @@ const ManagerUserManagement = () => {
               }
             />
             <input
-              type="password"
+              type="text"
               placeholder="Password"
               value={newUser.password}
               onChange={(e) =>

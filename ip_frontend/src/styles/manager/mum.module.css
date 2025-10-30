@@ -177,7 +177,6 @@
 }
 #searchBar2{
   width: 80%;
-  margin-bottom: 20px;
   display: none;
 }
 #errormsg{
@@ -206,6 +205,9 @@
   background: #6c757d;
   color: #fff;
 }
+.upd{
+  display: none;
+}
 
 
 @media (max-width: 992px) {
@@ -217,22 +219,23 @@
   
 }
 
+@media (max-width: 800px) {
+  .upd{
+    display: flex;
+    gap: 10px;
+      margin-bottom: 20px;
+    
 
-@media (max-width: 660px) {
-  .userCard {
-    max-width: 100%;
   }
-  
-}
-@media (max-width: 578px) {
-  .aumcontainer {
-  width: 90%;
-  margin: 110px auto;
-  /* font-family: "Poppins", sans-serif; */
-}
-  
-}
-@media (max-width: 500px) {
+  #dadd{
+    display: none;
+  }
+
+  #uadd{
+    
+  }
+
+
   .controls {
     /* flex-direction: column; */
     justify-content: flex-end;
@@ -243,10 +246,35 @@
   }
   #searchBar2{
     display: block;
-    width: 100%;
+    /* width: 80%; */
+    flex: 1;
   }
   
 }
+
+@media (max-width: 660px) {
+  .userCard {
+    max-width: 100%;
+  }
+  .addBtn{
+    /* padding: 4px; */
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    width: 60px;
+    outline: none;
+    color:white;
+    background: #1b4a1bd6;
+  }
+}
+@media (max-width: 578px) {
+  .aumcontainer {
+  width: 90%;
+  margin: 110px auto;
+  /* font-family: "Poppins", sans-serif; */
+}
+  
+}
+
 
 
 
@@ -387,4 +415,12 @@
   .modalContent h3 {
     font-size: 1.3rem;
   }
+}
+@media(max-width:350px){
+  .controls input,
+.controls select {
+  padding: 6px;
+
+}
+
 }
